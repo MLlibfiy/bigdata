@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <hadoop.version>2.6.0</hadoop.version>
+        <hadoop.version>2.5.2</hadoop.version>
         <hbase.version>0.98.12.1-hadoop2</hbase.version>
     </properties>
 
@@ -85,11 +85,11 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <!--<archive>
+                    <archive>
                         <manifest>
-                            <mainClass>com.shujia.demo.select</mainClass>
+                            <mainClass>com.shujia.hbase.HbaseToHdfs</mainClass>
                         </manifest>
-                    </archive>-->
+                    </archive>
                 </configuration>
                 <executions>
                     <execution>

@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
+import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.LongWritable;
@@ -20,7 +21,7 @@ import java.io.IOException;
 
 public class HdfsToHbase {
 
-    class ToHbaseMap extends Mapper<LongWritable,Text,Text,NullWritable>{
+   public static class ToHbaseMap extends Mapper<LongWritable,Text,Text,NullWritable>{
         @Override
         protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             context.write(value,NullWritable.get());
@@ -51,10 +52,12 @@ public class HdfsToHbase {
         Job job = Job.getInstance(conf);
 
         job.setNumReduceTasks(5);
+        job.setJarByClass(HdfsToHbase.class);
         job.setJobName("HdfsToHbase");
         job.setMapperClass(ToHbaseMap.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(NullWritable.class);
         FileInputFormat.addInputPath(job, new Path("/data/student/"));
-
 
         //指定reduce
         TableMapReduceUtil.initTableReducerJob("student", HDFSToHbaseReducer.class, job,null,null,null,null,false);
