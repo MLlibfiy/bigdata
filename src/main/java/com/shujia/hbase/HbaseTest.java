@@ -11,10 +11,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class HbaseTest {
 
     private HBaseAdmin admin;
+    HConnection connection;
 
     /**
      * 执行Test之前执行的代码块
@@ -29,6 +31,9 @@ public class HbaseTest {
              *
              */
             admin = new HBaseAdmin(conf);
+
+            //创建zookeeper连接
+            connection = HConnectionManager.createConnection(conf);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -98,24 +103,14 @@ public class HbaseTest {
 
 
     /**
-     *
      * 插入一条数据
      */
     @Test
     public void insert() {
-
-        Configuration conf = new Configuration();
-        conf.set("hbase.zookeeper.quorum", "node1:2181,node2:2181,node3:2181");
-        HConnection connection = null;
         HTableInterface table = null;
         try {
-            //创建zookeeper连接
-            connection = HConnectionManager.createConnection(conf);
-
             //获取表对象
             table = connection.getTable("student");
-
-
             //创建put对象指向rowkey
             Put put = new Put("001".getBytes());
             put.add("info".getBytes(), "name".getBytes(), "张三".getBytes());
@@ -127,15 +122,7 @@ public class HbaseTest {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (table!=null){
+            if (table != null) {
                 try {
                     table.close();
                 } catch (IOException e) {
@@ -143,7 +130,49 @@ public class HbaseTest {
                 }
             }
         }
+    }
 
+
+    /**
+     * 一次插入多行数据
+     */
+    @Test
+    public void insertAll() {
+
+        HTableInterface table = null;
+        try {
+            table = connection.getTable("student");
+            //加载磁盘上的数据
+            ArrayList<Student> students = DataUtil.load("E:\\bigdata\\bigdata\\data\\students.txt", Student.class);
+
+            ArrayList<Put> puts = new ArrayList<Put>();
+
+            for (Student student : students) {
+                byte[] rowkey = student.getId().getBytes();
+
+                Put put = new Put(rowkey);
+                put.add("info".getBytes(), "age".getBytes(), Bytes.toBytes(student.getAge()));
+                put.add("info".getBytes(), "name".getBytes(), Bytes.toBytes(student.getName()));
+                put.add("info".getBytes(), "clazz".getBytes(), Bytes.toBytes(student.getClazz()));
+                put.add("info".getBytes(), "gender".getBytes(), Bytes.toBytes(student.getGender()));
+                puts.add(put);
+            }
+
+            //插入多行数据
+            table.put(puts);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (table != null) {
+                try {
+                    table.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
     }
 
@@ -158,6 +187,14 @@ public class HbaseTest {
         if (admin != null) {
             try {
                 admin.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (connection != null) {
+            try {
+                connection.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
