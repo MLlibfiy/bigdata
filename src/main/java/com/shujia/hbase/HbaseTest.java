@@ -1,9 +1,7 @@
 package com.shujia.hbase;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.After;
@@ -12,6 +10,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class HbaseTest {
 
@@ -162,6 +161,7 @@ public class HbaseTest {
             table.put(puts);
 
 
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -176,6 +176,49 @@ public class HbaseTest {
 
     }
 
+
+
+    @Test
+    public void query(){
+        HTableInterface table = null;
+        try {
+            table = connection.getTable("student");
+            Get get = new Get("1500100007".getBytes());
+            //执行查询返回结果
+            Result result = table.get(get);
+            //获取所有列
+            List<Cell> cells = result.listCells();
+
+            //遍历每一个单元格
+            for (Cell cell : cells) {
+                String qualifier = Bytes.toString(CellUtil.cloneQualifier(cell));
+
+                if ("age".equals(qualifier)){
+                    Integer value = Bytes.toInt(CellUtil.cloneValue(cell));
+                    System.out.println(qualifier+":"+value);
+                }else {
+                    String value = Bytes.toString(CellUtil.cloneValue(cell));
+                    System.out.println(qualifier+":"+value);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if (table != null) {
+                try {
+                    table.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    @Test
+    public void scanner(){
+        HTableInterface table = connection.getTable("student");
+    }
 
     /**
      * 最后执行
