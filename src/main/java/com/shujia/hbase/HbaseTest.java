@@ -3,8 +3,7 @@ package com.shujia.hbase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
-import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.After;
 import org.junit.Before;
@@ -268,9 +267,157 @@ public class HbaseTest {
         }
     }
 
+
+    @Test
     /**
-     * 最后执行
+     * 查询文科班的所有学生
+     *
      */
+    public void queryWenke(){
+        HTableInterface table = null;
+        try {
+            table = connection.getTable("student");
+
+            //创建扫描器对象
+            Scan scan = new Scan();
+
+            //指定列簇扫描
+            scan.addFamily("info".getBytes());
+
+
+            //增加过滤器，过滤文科班的学生
+            RegexStringComparator regexStringComparator = new RegexStringComparator("文科");
+            SingleColumnValueFilter columnValueFilter = new SingleColumnValueFilter("info".getBytes(), "clazz".getBytes(), CompareFilter.CompareOp.EQUAL, regexStringComparator);
+
+            SubstringComparator comp = new SubstringComparator("男");
+            SingleColumnValueFilter columnValueFilter1 = new SingleColumnValueFilter("info".getBytes(), "gender".getBytes(), CompareFilter.CompareOp.EQUAL, comp);
+
+            //过滤器集合
+            FilterList fl = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+
+            //前缀过滤
+            BinaryPrefixComparator prefixComparator = new BinaryPrefixComparator(Bytes.toBytes("吕"));
+
+            SingleColumnValueFilter filter = new SingleColumnValueFilter(Bytes.toBytes("info"), Bytes.toBytes("name"),CompareFilter.CompareOp.EQUAL, prefixComparator);
+
+            //过滤文科班的学生
+            fl.addFilter(columnValueFilter);
+
+            //过滤性别为男的学生
+            fl.addFilter(columnValueFilter1);
+
+            //增加前缀过滤
+            fl.addFilter(filter);
+
+            scan.setFilter(fl);
+            //执行送秒操作，返回多行结果
+            ResultScanner results = table.getScanner(scan);
+
+            Result line;
+            //迭代结果集合
+            while ((line = results.next()) != null) {
+                //获取这一行的所有列
+                List<Cell> cells = line.listCells();
+                //遍历每一个单元格
+                for (Cell cell : cells) {
+                    //获取rowkey
+                    String rowkey = Bytes.toString(CellUtil.cloneRow(cell));
+                    System.out.print(rowkey+"\t");
+                    String qualifier = Bytes.toString(CellUtil.cloneQualifier(cell));
+                    if ("age".equals(qualifier)) {
+                        Integer value = Bytes.toInt(CellUtil.cloneValue(cell));
+                        System.out.print(qualifier + ":" + value + "\t");
+                    } else {
+                        String value = Bytes.toString(CellUtil.cloneValue(cell));
+                        System.out.print(qualifier + ":" + value + "\t");
+                    }
+                }
+                System.out.println();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (table != null) {
+                try {
+                    table.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 行键过滤器
+     *
+     */
+    @Test
+    public void rowFilter() {
+        HTableInterface table = null;
+        try {
+            table = connection.getTable("student");
+
+            //创建扫描器对象
+            Scan scan = new Scan();
+
+            //指定列簇扫描
+            scan.addFamily("info".getBytes());
+
+
+            /**
+             * 设置开始key 和结束key
+             *
+             */
+            /*scan.setStartRow("1500100199".getBytes());
+            scan.setStopRow("1500100253".getBytes());*/
+
+
+            /**
+             * rowkey前缀过滤
+             *
+             */
+            BinaryPrefixComparator binaryPrefixComparator = new BinaryPrefixComparator("15001002".getBytes());
+            RowFilter rowFilter = new RowFilter(CompareFilter.CompareOp.EQUAL, binaryPrefixComparator);
+
+            scan.setFilter(rowFilter);
+
+            //执行送秒操作，返回多行结果
+            ResultScanner results = table.getScanner(scan);
+
+            Result line;
+            //迭代结果集合
+            while ((line = results.next()) != null) {
+                //获取这一行的所有列
+                List<Cell> cells = line.listCells();
+                //遍历每一个单元格
+                for (Cell cell : cells) {
+                    //获取rowkey
+                    String rowkey = Bytes.toString(CellUtil.cloneRow(cell));
+                    System.out.print(rowkey + "\t");
+                    String qualifier = Bytes.toString(CellUtil.cloneQualifier(cell));
+                    if ("age".equals(qualifier)) {
+                        Integer value = Bytes.toInt(CellUtil.cloneValue(cell));
+                        System.out.print(qualifier + ":" + value + "\t");
+                    } else {
+                        String value = Bytes.toString(CellUtil.cloneValue(cell));
+                        System.out.print(qualifier + ":" + value + "\t");
+                    }
+                }
+                System.out.println();
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+
+            /**
+             * 最后执行
+             */
 
     @After
     public void close() {
