@@ -4,8 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.client.HConnectionManager;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.After;
 import org.junit.Before;
@@ -15,7 +14,7 @@ import java.io.IOException;
 
 public class HbaseTest {
 
-    HBaseAdmin admin;
+    private HBaseAdmin admin;
 
     /**
      * 执行Test之前执行的代码块
@@ -95,6 +94,57 @@ public class HbaseTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    /**
+     *
+     * 插入一条数据
+     */
+    @Test
+    public void insert() {
+
+        Configuration conf = new Configuration();
+        conf.set("hbase.zookeeper.quorum", "node1:2181,node2:2181,node3:2181");
+        HConnection connection = null;
+        HTableInterface table = null;
+        try {
+            //创建zookeeper连接
+            connection = HConnectionManager.createConnection(conf);
+
+            //获取表对象
+            table = connection.getTable("student");
+
+
+            //创建put对象指向rowkey
+            Put put = new Put("001".getBytes());
+            put.add("info".getBytes(), "name".getBytes(), "张三".getBytes());
+            put.add("info".getBytes(), "age".getBytes(), Bytes.toBytes(23));
+
+            //插入一行数据数据
+            table.put(put);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (table!=null){
+                try {
+                    table.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
     }
 
 
