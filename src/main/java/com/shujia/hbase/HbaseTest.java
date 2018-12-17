@@ -3,6 +3,8 @@ package com.shujia.hbase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
+import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.After;
 import org.junit.Before;
@@ -161,7 +163,6 @@ public class HbaseTest {
             table.put(puts);
 
 
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -177,9 +178,8 @@ public class HbaseTest {
     }
 
 
-
     @Test
-    public void query(){
+    public void query() {
         HTableInterface table = null;
         try {
             table = connection.getTable("student");
@@ -193,17 +193,17 @@ public class HbaseTest {
             for (Cell cell : cells) {
                 String qualifier = Bytes.toString(CellUtil.cloneQualifier(cell));
 
-                if ("age".equals(qualifier)){
+                if ("age".equals(qualifier)) {
                     Integer value = Bytes.toInt(CellUtil.cloneValue(cell));
-                    System.out.println(qualifier+":"+value);
-                }else {
+                    System.out.println(qualifier + ":" + value);
+                } else {
                     String value = Bytes.toString(CellUtil.cloneValue(cell));
-                    System.out.println(qualifier+":"+value);
+                    System.out.println(qualifier + ":" + value);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             if (table != null) {
                 try {
                     table.close();
@@ -216,8 +216,56 @@ public class HbaseTest {
 
 
     @Test
-    public void scanner(){
-        HTableInterface table = connection.getTable("student");
+    public void scanner() {
+        HTableInterface table = null;
+        try {
+            table = connection.getTable("student");
+
+            //创建扫描器对象
+            Scan scan = new Scan();
+
+            //指定列簇扫描
+            scan.addFamily("info".getBytes());
+
+            //执行送秒操作，返回多行结果
+            ResultScanner results = table.getScanner(scan);
+
+            Result line;
+            //迭代结果集合
+            while ((line = results.next()) != null) {
+                //获取这一行的所有列
+                List<Cell> cells = line.listCells();
+                //遍历每一个单元格
+                for (Cell cell : cells) {
+
+                    //获取rowkey
+                    String rowkey = Bytes.toString(CellUtil.cloneRow(cell));
+                    System.out.print(rowkey+"\t");
+                    String qualifier = Bytes.toString(CellUtil.cloneQualifier(cell));
+                    if ("age".equals(qualifier)) {
+                        Integer value = Bytes.toInt(CellUtil.cloneValue(cell));
+                        System.out.print(qualifier + ":" + value + "\t");
+                    } else {
+                        String value = Bytes.toString(CellUtil.cloneValue(cell));
+                        System.out.print(qualifier + ":" + value + "\t");
+                    }
+                }
+
+                System.out.println();
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (table != null) {
+                try {
+                    table.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
