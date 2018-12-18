@@ -85,11 +85,11 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <archive>
+                    <!--<archive>
                         <manifest>
-                            <mainClass>com.shujia.hbase.HbaseToHdfs</mainClass>
+                            <mainClass>com.shujia.hbase.HdfsToFile</mainClass>
                         </manifest>
-                    </archive>
+                    </archive>-->
                 </configuration>
                 <executions>
                     <execution>
