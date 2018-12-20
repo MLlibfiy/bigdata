@@ -115,6 +115,9 @@ public class HbaseTest {
             Put put = new Put("001".getBytes());
             put.add("info".getBytes(), "name".getBytes(), "张三".getBytes());
             put.add("info".getBytes(), "age".getBytes(), Bytes.toBytes(23));
+            put.add("info".getBytes(), "clazz".getBytes(), "文科一班".getBytes());
+            put.add("info".getBytes(), "clazz".getBytes(), "文科一班".getBytes());
+            put.add("info".getBytes(), "gender".getBytes(), "男".getBytes());
 
             //插入一行数据数据
             table.put(put);
