@@ -121,7 +121,9 @@ public class HbaseIndexJava {
              * 使用rowkey前缀过滤器
              */
 
-            BinaryPrefixComparator binaryPrefixComparator = new BinaryPrefixComparator("文科一班_男".getBytes());
+
+            String prefixString = ContentUtil.getClazzIndex("文科一班")+"_"+ContentUtil.getGenderIndex("男");
+            BinaryPrefixComparator binaryPrefixComparator = new BinaryPrefixComparator(prefixString.getBytes());
             RowFilter rowFilter = new RowFilter(CompareFilter.CompareOp.EQUAL, binaryPrefixComparator);
             Scan scan = new Scan();
             scan.setFilter(rowFilter);
