@@ -34,6 +34,8 @@ public class IndexHBaseCoprocessor extends BaseRegionObserver {
 
     }
 
+
+
     /**
      *
      * 在对表执行删除操作时执行此方法
