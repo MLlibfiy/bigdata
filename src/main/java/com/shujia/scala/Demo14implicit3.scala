@@ -31,7 +31,7 @@ object Demo14implicit3 {
     //implicit def cat(file: File) = new FileRead(file)
 
     /**
-      * 隐式转换，在不改变原来类的源码情况下，动态增加新的方法
+      * 隐式转换，在不改变原来类的源码 情况下，动态增加新的方法
       */
     val strings = file.read()
     println(strings.size)
