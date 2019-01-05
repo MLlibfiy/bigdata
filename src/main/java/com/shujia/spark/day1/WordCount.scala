@@ -1,4 +1,4 @@
-package com.shujia.spark
+package com.shujia.spark.day1
 
 import org.apache.spark.{SparkConf, SparkContext}
 
