@@ -14,8 +14,15 @@
         <hbase.version>0.98.12.1-hadoop2</hbase.version>
     </properties>
 
-
     <dependencies>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-core -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.11</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.apache.hbase/hbase-client -->
         <dependency>
             <groupId>org.apache.hbase</groupId>
@@ -63,6 +70,7 @@
         </dependency>
 
     </dependencies>
+
 
 
     <build>
