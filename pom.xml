@@ -87,17 +87,17 @@
                     <showWarnings>true</showWarnings>
                 </configuration>
             </plugin>
-            <plugin>
+            <!--<plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                    <!--<archive>
+                    &lt;!&ndash;<archive>
                         <manifest>
                             <mainClass>com.shujia.hbase.HdfsToFile</mainClass>
                         </manifest>
-                    </archive>-->
+                    </archive>&ndash;&gt;
                 </configuration>
                 <executions>
                     <execution>
@@ -108,7 +108,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 </project>

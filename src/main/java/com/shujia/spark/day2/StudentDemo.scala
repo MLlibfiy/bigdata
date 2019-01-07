@@ -1,11 +1,13 @@
 package com.shujia.spark.day2
+
 import org.apache.spark.{SparkConf, SparkContext}
+
 object StudentDemo {
 
   def main(args: Array[String]): Unit = {
 
     val conf = new SparkConf()
-      .setMaster(Content.MASTER)
+      //.setMaster(Content.MASTER) //上线运行在spark-submit后面指定运行模式
       .setAppName(Content.APP_NAME)
 
     val sc = new SparkContext(conf)
@@ -85,6 +87,87 @@ object StudentDemo {
         val stu = x._2._2
         stu.id + Content.OUT_SPLIT + stu.name + Content.OUT_SPLIT + stu.clazz + Content.OUT_SPLIT + sumSco
       }).saveAsTextFile(Content.SUM_SCORE_GT_AVG_SCORE_OUT_PATH)
+
+
+    /**
+      *
+      * 查询每科都及格的学生 [学号，姓名，班级，科目，分数]
+      *
+      */
+
+    val courceAllarr = studentScoreInfoRDD
+      .map(s => {
+        //获取科目及格分数
+        val courceScore = courceMap.get(s.cource_id) match {
+          case Some(c) => c.sumScore * 0.6 //及格比例
+          case None => 60 //缺省值
+        }
+
+        //科目名
+        val courceName = courceMap.get(s.cource_id) match {
+          case Some(c) => c.name
+          case None => "none" //缺省值
+        }
+
+        val flag = if (s.score >= courceScore) 1 else 0
+
+        (s.id, flag)
+      }).reduceByKey(_ + _)
+      .filter(_._2 == 6)
+      .map(_._1)
+      .collect()
+
+
+    studentScoreInfoRDD
+      .filter(s => courceAllarr.contains(s.id))
+      .map(s => {
+        //增加科目名称列
+        val courceName = courceMap.get(s.cource_id) match {
+          case Some(c) => c.name
+          case None => "no"
+        }
+        s.id + Content.OUT_SPLIT + s.name + Content.OUT_SPLIT + s.clazz + Content.OUT_SPLIT + courceName + Content.OUT_SPLIT + s.score
+      }).saveAsTextFile(Content.COURCE_ALL_OUT_PATH)
+
+
+    /**
+      * 查询偏科最严重的前100名学生  [学号，姓名，班级，科目，分数]
+      */
+
+    val idAndScoreRDD = studentScoreInfoRDD.map(s => (s.id, s.score))
+
+    //1、计算每个学生的平均分
+    val stuAvgScoreRDD = idAndScoreRDD
+      .reduceByKey(_ + _)
+      .map(x => (x._1, x._2 / 6))
+
+
+    val top100studentId =  idAndScoreRDD.join(stuAvgScoreRDD)
+      .map(t => {
+        //2、计算分数的方差
+        val id = t._1
+        val score = t._2._1
+        val avgScore = t._2._2
+        val absScore = math.abs(score - avgScore)
+        (id, absScore * absScore)
+      }).reduceByKey(_ + _)//求和
+      .sortBy(-_._2)//方差倒序排序
+      .take(100)//取出偏科最严重的前100个学生
+      .map(_._1)
+
+
+    studentScoreInfoRDD
+      .filter(s => top100studentId.contains(s.id))
+      .map(s => {
+        //增加科目名称列
+        val courceName = courceMap.get(s.cource_id) match {
+          case Some(c) => c.name
+          case None => "no"
+        }
+        s.id + Content.OUT_SPLIT + s.name + Content.OUT_SPLIT + s.clazz + Content.OUT_SPLIT + courceName + Content.OUT_SPLIT + s.score
+      }).saveAsTextFile(Content.TOP_100_OUT_PATH)
+
+
 
   }
 }
