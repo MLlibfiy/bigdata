@@ -22,13 +22,19 @@ object SparkBro {
       .textFile("E:\\bigdata\\bigdata\\data\\Cource.txt")
       .map(lines => lines.split(Content.IN_SPLIT))
       .map(s => (s(0), Cource(s(0), s(1), s(2).toInt)))
-      .collectAsMap()//数据被拉去到Driver端
+      .collectAsMap() //数据被拉去到Driver端
 
 
     //广播变量
+
+    /**
+      * 1、只能在Driver端定义，在Executor端使用
+      * 2、在Executor端不能修改
+      *
+      */
     val broadcast = sc.broadcast(courceMap)
 
-    scoreRDD.map(s=>{
+    scoreRDD.map(s => {
 
       /**
         * 不能在Task里面使用sc
@@ -39,12 +45,10 @@ object SparkBro {
       //val rdd = sc.textFile("")
 
       val coureName = broadcast.value.get(s.cource_id) match {
-        case Some(c) =>c.name
+        case Some(c) => c.name
         case None => "no"
       }
     })
-
-
 
 
   }
