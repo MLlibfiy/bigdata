@@ -22,6 +22,9 @@ object StudentDemo {
       .map(lines => lines.split(Content.IN_SPLIT))
       .map(s => (s(0), Score(s(0), s(1), s(2).toInt)))
 
+
+   
+
     val courceMap = sc
       .textFile(Content.COURCE_IN_PATH)
       .map(lines => lines.split(Content.IN_SPLIT))
