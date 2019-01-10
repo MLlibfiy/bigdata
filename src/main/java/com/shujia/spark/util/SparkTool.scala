@@ -1,11 +1,13 @@
 package com.shujia.spark.util
 
+import org.apache.spark.sql.SQLContext
 import org.apache.spark.{SparkConf, SparkContext}
 
 trait SparkTool {
 
   var sc: SparkContext = _
   var conf: SparkConf = _
+  var sqlContext: SQLContext = _
 
   def main(args: Array[String]): Unit = {
 
@@ -15,6 +17,10 @@ trait SparkTool {
     this.init()
 
     sc = new SparkContext(conf)
+
+    val sqlContext = new org.apache.spark.sql.SQLContext(sc)
+
+
 
     this.run()
 

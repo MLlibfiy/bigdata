@@ -12,7 +12,7 @@ object Demo1 extends SparkTool {
     /**
       * 创建spark sql 上下文对象
       */
-    val sqlContext = new SQLContext(sc)
+    //val sqlContext = new SQLContext(sc)
 
     /**
       * dataFrame  数据框，基于RDD的封装，每一行实际上就是一个ROW对象
@@ -44,6 +44,48 @@ object Demo1 extends SparkTool {
 
     df.select("name", "age").show()
     df.select(df("age") + 1, df("id")).show()
+
+    /**
+      * 过滤
+      */
+    df.filter(df("age") > 23).show()
+
+    df.filter("age <= 23").show()
+
+    /**
+      * 分组和聚合函数必须结合使用
+      *
+      * 聚合函数
+      * count
+      * avg
+      * max
+      * min
+      * sum
+      *
+      */
+
+    df.groupBy("age").count().show()
+
+    df.groupBy(df("age"), df("name")).count().show()
+
+    df.groupBy("age")
+
+
+    /**
+      * 将dataframe注册成一张临时表
+      *
+      */
+
+    df.registerTempTable("students")
+
+
+    /**
+      * 通过sqlContext写sql数据操作临时表
+      *
+      */
+
+    sqlContext.sql("select * from students where age > 23").show()
+
 
 
   }
