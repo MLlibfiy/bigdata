@@ -40,7 +40,6 @@ object AggregateOperator {
 
     val result = dataRdd.aggregateByKey(2)(seq, comb).collect
 
-    dataRdd.aggregate(2)()
 
     result.foreach(println)
   }
