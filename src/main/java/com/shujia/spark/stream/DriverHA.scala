@@ -5,6 +5,10 @@ import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.{Durations, StreamingContext}
 
 object DriverHA {
+
+  /**
+    * spark-submit --master yarn-cluster --class com.shujia.spark.stream.DriverHA --supervise --num-executors 2 --executor-memory 512M --executor-cores 1 --driver-memory 512M ./bigdata-1.0.jar
+    */
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf()
       .setAppName("SparkStreamingOnHDFS")//.setMaster("local[2]")
