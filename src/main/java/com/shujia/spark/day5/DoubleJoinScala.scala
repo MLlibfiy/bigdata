@@ -49,37 +49,64 @@ object DoubleJoinScala {
 
     val broadcastSkewedKey: Broadcast[String] = sc.broadcast(skewedKey)
 
+
+    /**
+      * 过滤层导致数据倾斜key的数据
+      */
     val skewedRDD1: RDD[(String, Int)] = RDD1.filter(tuple => {
       tuple._1.equals(broadcastSkewedKey.value)
     })
 
+    /**
+      * 过滤出没有数据倾斜的数据
+      */
     val commonRDD1: RDD[(String, Int)] = RDD1.filter(tuple => {
       !tuple._1.equals(broadcastSkewedKey.value)
     })
 
+
+    /**
+      * 过滤层导致数据倾斜key的数据
+      */
     val skewedRDD2: RDD[(String, Int)] = RDD2.filter(tuple => {
       tuple._1.equals(broadcastSkewedKey.value)
     })
+
+    /**
+      * 过滤出没有数据倾斜的数据
+      */
 
     val commonRDD2: RDD[(String, Int)] = RDD2.filter(tuple => {
       !tuple._1.equals(broadcastSkewedKey.value)
     })
 
+    /**
+      * 数据倾斜key的数据打上n以内的随机前缀
+      */
     val prefixSkewedRDD1: RDD[(String, Int)] = skewedRDD1.map(tuple => {
       val random = new Random()
-      val prefix: Int = random.nextInt(5)
+      val prefix: Int = random.nextInt(2)
       (prefix + "_" + tuple._1, tuple._2)
     })
 
+    /**
+      * 没有数据倾斜的表扩容N倍
+      *
+      */
+
     val expandSkewedRDD2: RDD[(String, Int)] = skewedRDD2.flatMap(tuple => {
       val list = new util.ArrayList[(String, Int)]
-      for (i <- 0 until 5) {
+      for (i <- 0 until 2) {
         list.add((i + "_" + tuple._1, tuple._2))
       }
       import scala.collection.JavaConversions._
       list.toList
     })
 
+
+    /**
+      * 关联之后去掉前缀
+      */
     val resultRDD1: RDD[(String, (Int, Int))] = prefixSkewedRDD1.join(expandSkewedRDD2).map(tuple => {
       (tuple._1.split("_")(1), tuple._2)
     })
@@ -87,7 +114,6 @@ object DoubleJoinScala {
     val resultRDD2: RDD[(String, (Int, Int))] = commonRDD1.join(commonRDD2)
 
     resultRDD1.union(resultRDD2).foreach(println)
-    resultRDD1.groupByKey(1000)
 
   }
 }
