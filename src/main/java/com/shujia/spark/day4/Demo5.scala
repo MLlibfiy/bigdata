@@ -49,6 +49,7 @@ object Demo5 {
     df.registerTempTable("students")
 
 
+
     val sql = "select * from (select a.id,a.name,a.age,a.gender,a.clazz,row_number() over(partition by clazz order by sum(b.score) desc) as  rank,sum(b.score) from students as a join scores as b on a.id=b.id group by a.id,a.name,a.age,a.gender,a.clazz) as c where c.rank<=10"
 
     hiveContext.sql(sql).show(true)
