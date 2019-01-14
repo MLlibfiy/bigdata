@@ -110,6 +110,20 @@
             <version>2.11.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>0.8.2.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-streaming-kafka -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming-kafka_2.11</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+
+
     </dependencies>
 
 
