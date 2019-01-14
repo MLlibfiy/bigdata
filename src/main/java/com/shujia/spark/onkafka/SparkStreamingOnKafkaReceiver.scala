@@ -33,6 +33,7 @@ object SparkStreamingOnKafkaReceiver {
       topic,StorageLevel.MEMORY_AND_DISK_SER_2)//数据拉去过来之后的持久化级别
 
 
+
     val countDS = kafkaDS
       .flatMap(_._2.split(" "))
       .map((_,1))
