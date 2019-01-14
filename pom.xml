@@ -116,7 +116,7 @@
             <artifactId>kafka-clients</artifactId>
             <version>0.8.2.2</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-streaming-kafka -->
+        <!-- https://mvnrepository.com/artifact/org.apache.sp ark/spark-streaming-kafka -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming-kafka_2.11</artifactId>
